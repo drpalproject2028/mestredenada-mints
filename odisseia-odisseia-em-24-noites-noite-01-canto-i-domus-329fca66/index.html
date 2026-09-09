@@ -51,7 +51,7 @@ explícita na extensão da wallet — esta página nunca vê nem guarda nenhuma 
 nome/símbolo abaixo antes de assinar.</p>
 
 <p><strong>Nome:</strong> Odisseia em 24 Noites — Noite 01 · Canto I · DOMUS<br>
-<strong>Símbolo:</strong> ODISSEIAEM<br>
+<strong>Símbolo:</strong> ODIS01<br>
 <strong>Rede:</strong> Base mainnet<br>
 <strong>Criador:</strong> a tua wallet ligada (deve corresponder a drpal2028.base.eth,
 0x58EdD03d94AE7A7435C1DE3269CE198106f9c393)</p>
@@ -128,10 +128,8 @@ nome/símbolo abaixo antes de assinar.</p>
       log('A construir e a enviar metadata para a Zora...');
       const uploadResult = await createMetadataBuilder()
         .withName('Odisseia em 24 Noites — Noite 01 · Canto I · DOMUS')
-        .withSymbol('ODISSEIAEM')
-        .withDescription('Quem ocupa o teu lugar quando não estás em ti?
-
-#luxumbrae')
+        .withSymbol('ODIS01')
+        .withDescription('Quem ocupa o teu lugar quando não estás em ti?\n\n#luxumbrae')
         .withImage(imageFile)
         .withMedia(videoFile)
         .upload(createZoraUploaderForCreator(account));
