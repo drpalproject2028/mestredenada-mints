@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mintar — Odisseia em 24 Noites — FENESTRA</title>
+<style>
+  body {
+    background: #060505;
+    color: #ece5e2;
+    font-family: 'JetBrains Mono', 'SF Mono', 'Courier New', monospace;
+    max-width: 640px;
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+    line-height: 1.6;
+  }
+  h1 { font-size: 1.2rem; color: #d94a68; }
+  button {
+    background: #8b2942;
+    color: #ece5e2;
+    border: none;
+    padding: 0.8rem 1.4rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button:hover:not(:disabled) { background: #d94a68; }
+  #log {
+    margin-top: 2rem;
+    white-space: pre-wrap;
+    font-size: 0.8rem;
+    color: #9c8d8a;
+    border-top: 1px solid rgba(236,229,226,0.14);
+    padding-top: 1rem;
+  }
+  a { color: #f6b8c4; }
+  .warn { color: #d94a68; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Mintar "Odisseia em 24 Noites — FENESTRA" na Zora (Base)</h1>
+
+<p>Este botão prepara a transacção de <code>createCoin</code> e pede-te para a assinares
+na tua wallet (MetaMask, Coinbase Wallet, etc). Nada é submetido sem a tua confirmação
+explícita na extensão da wallet — esta página nunca vê nem guarda nenhuma chave privada.</p>
+
+<p class="warn">⚠️ Isto grava algo permanente e público na blockchain Base. Confirma o
+nome/símbolo abaixo antes de assinar.</p>
+
+<p><strong>Nome:</strong> Odisseia em 24 Noites — FENESTRA<br>
+<strong>Símbolo:</strong> ODISSEIAEM<br>
+<strong>Rede:</strong> Base mainnet<br>
+<strong>Criador:</strong> a tua wallet ligada (deve corresponder a drpal2028.base.eth,
+0x58EdD03d94AE7A7435C1DE3269CE198106f9c393)</p>
+
+<p><label for="zoraKey"><strong>Chave Zora</strong> (cola aqui, nunca fica guardada em ficheiro nenhum):</label><br>
+<input id="zoraKey" type="password" placeholder="Cola a chave Zora aqui" autocomplete="off" style="width:100%;max-width:400px;padding:0.6rem;font-family:inherit;background:#151212;color:#ece5e2;border:1px solid #3a3232;margin-top:0.3rem;"></p>
+
+<button id="connect">1. Ligar wallet</button>
+<button id="mint" disabled>2. Preparar e assinar mint</button>
+
+<div id="log"></div>
+
+<script type="module">
+  import {
+    createCoinCall,
+    CreateConstants,
+    createMetadataBuilder,
+    createZoraUploaderForCreator,
+    setApiKey,
+  } from "https://esm.sh/@zoralabs/coins-sdk@0.8.0?deps=viem@2.53.1";
+  import { createWalletClient, custom } from "https://esm.sh/viem@2.53.1";
+  import { base } from "https://esm.sh/viem@2.53.1/chains";
+
+  const logEl = document.getElementById('log');
+  const keyInput = document.getElementById('zoraKey');
+  const connectBtn = document.getElementById('connect');
+  const mintBtn = document.getElementById('mint');
+
+  function log(msg) {
+    logEl.textContent += msg + '\n';
+    console.log(msg);
+  }
+
+  let account = null;
+  let walletClient = null;
+
+  connectBtn.addEventListener('click', async () => {
+    if (!window.ethereum) {
+      log('ERRO: não encontrei nenhuma wallet (MetaMask/Coinbase Wallet) instalada neste browser.');
+      return;
+    }
+    try {
+      walletClient = createWalletClient({
+        chain: base,
+        transport: custom(window.ethereum),
+      });
+      const [addr] = await walletClient.requestAddresses();
+      account = addr;
+      log('Wallet ligada: ' + account);
+      connectBtn.disabled = true;
+      mintBtn.disabled = false;
+    } catch (e) {
+      log('ERRO ao ligar wallet: ' + e.message);
+    }
+  });
+
+  mintBtn.addEventListener('click', async () => {
+    if (!keyInput.value.trim()) {
+      log('ERRO: cola a chave Zora no campo acima antes de continuar.');
+      return;
+    }
+    setApiKey(keyInput.value.trim());
+    mintBtn.disabled = true;
+    try {
+      log('A carregar vídeo/media e imagem de capa...');
+      const [videoResp, imageResp] = await Promise.all([
+        fetch('https://btkdpjlltekssobfzdhu.supabase.co/storage/v1/object/public/media-publica/mestredenada/odisseia/04-FENESTRA.mp4'),
+        fetch('https://instagram.flis12-1.fna.fbcdn.net/v/t51.71878-15/806466455_1075243125108228_888954223077990827_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=3_dipyRNl44Q7kNvwHjXKCh&_nc_oc=AdpRn3IbwPSqSejJifmNVipi_-2-3DJTn5wkEOBQQQTzeyTv6asXxURCYDwOGdoEmKejNEd-TgJJ3ZdUUK-SHbw1&_nc_zt=23&_nc_ht=instagram.flis12-1.fna&edm=ANQ71j8EAAAA&_nc_gid=yh-aTMQZPNkgSd16x4R-8g&_nc_tpa=Q5bMBQJc4oUV8vt4rzT_3RWGBqB_xx9Gqw4XxxX_I-9gor_rHmn2B-vpCgDJ9MPdpDxkIJCJyuq5IYdPdg&oh=00_AQJcpJcdUl1PrqBwOwUuORgTciytOfDES4DpTm7naadicA&oe=6AAB1CDB'),
+      ]);
+      const videoBlob = await videoResp.blob();
+      const imageBlob = await imageResp.blob();
+      // O ficheiro de media pode ser um video real ou (quando nao ha video) a mesma
+      // imagem de capa reaproveitada — usar sempre o content-type real da resposta,
+      // nunca assumir video/mp4, ou a Zora tenta transcodificar bytes de imagem como
+      // video e o player fica permanentemente partido (icone de play com traço).
+      const videoType = videoResp.headers.get('content-type') || videoBlob.type || 'application/octet-stream';
+      const videoExt = videoType.split('/')[1]?.split(';')[0] || 'bin';
+      const videoFile = new File([videoBlob], 'media.' + videoExt, { type: videoType });
+      const imageFile = new File([imageBlob], 'poster.jpg', { type: 'image/jpeg' });
+
+      log('A construir e a enviar metadata para a Zora...');
+      const uploadResult = await createMetadataBuilder()
+        .withName('Odisseia em 24 Noites — FENESTRA')
+        .withSymbol('ODISSEIAEM')
+        .withDescription('O que olhas todos os dias sem poder entrar?\n\n#luxumbrae')
+        .withImage(imageFile)
+        .withMedia(videoFile)
+        .upload(createZoraUploaderForCreator(account));
+
+      const { url, createMetadataParameters } = uploadResult;
+      log('Metadata pronta: ' + url);
+      log('A preparar a transacção createCoin (Base mainnet)...');
+
+      const { calls, predictedCoinAddress } = await createCoinCall({
+        creator: account,
+        name: createMetadataParameters.name,
+        symbol: createMetadataParameters.symbol,
+        metadata: createMetadataParameters.metadata,
+        currency: CreateConstants.ContentCoinCurrencies.ZORA,
+        chainId: base.id,
+        startingMarketCap: CreateConstants.StartingMarketCaps.LOW,
+      });
+
+      log('Endereço previsto do coin: ' + predictedCoinAddress);
+      log('A pedir à wallet para mudar para a rede Base — confirma isso primeiro.');
+
+      try {
+        await walletClient.switchChain({ id: base.id });
+        log('Rede mudada para Base com sucesso.');
+      } catch (switchErr) {
+        log('AVISO: não consegui pedir a troca de rede automaticamente (' + switchErr.message + '). Muda manualmente para Base na wallet e tenta de novo.');
+        throw switchErr;
+      }
+
+      log('A pedir assinatura na tua wallet — confirma lá.');
+
+      const txHash = await walletClient.sendTransaction({
+        to: calls[0].to,
+        data: calls[0].data,
+        value: calls[0].value,
+        account,
+      });
+
+      log('Transacção enviada: ' + txHash);
+      log('Vê em: https://basescan.org/tx/' + txHash);
+      log('Coin (assim que confirmar): https://zora.co/coin/base:' + predictedCoinAddress);
+    } catch (e) {
+      log('ERRO: ' + (e && e.message ? e.message : String(e)));
+      mintBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
